@@ -24,6 +24,8 @@ public:
   bool deleteSommet(C);
   bool deleteArrete(pair<C,C>);
   void deleteArrete(C);//suprime toute les arretes qui concerne C, un sommet.
+  friend ostream& operator<<(ostream& out ,const Graphe<C> &g );
+
 };
 
 //
@@ -106,6 +108,22 @@ void Graphe<C>::deleteArrete(C s){
     }
   }
 }
+
+template< class C >
+ostream & operator << ( ostream& out ,const Graphe<C> &g ) {
+  out<<"Sommets:"<<endl;
+  for(int i =0;i<g.sommets.size();i++){
+    out<<g.sommets[i]<<";" ;
+  }
+  out<<endl;
+  out<<"Arretes:"<<endl;
+  for(int i =0;i<g.arretes.size();i++){
+    out<<"sommets: "<<g.arretes.first.first<<" "<<g.arretes.first.second<<"// poid:"<<g.arretes.second<<endl;
+  }
+  return out;
+}
+
+
 // template< class C >
 // Solmmet &Sommet::operator = (const vector<C*>& v ) {
 // 	for (int i=0;i<v.size();i++){
@@ -127,10 +145,14 @@ int main(){
    a.push_back(make_pair(make_pair(4,3),9));
    a.push_back(make_pair(make_pair(2,4),5));
 
-    Graphe<int> *g= new Graphe<int>(v,a);
-    g->addSommet(5);
-    g->addArrete(make_pair(make_pair(2,5),78));
-    g->deleteSommet(5);
+    // Graphe<int> *g= new Graphe<int>(v,a);
+
+    Graphe<int> g (v,a);
+    g.addSommet(5);
+    g.addArrete(make_pair(make_pair(2,5),78));
+    g.deleteSommet(5);
+    Graphe<int>& refg = g;
+     cout<<g<<endl;
 
 
   //  Graphe<int> *g2= new Graphe<int>();
