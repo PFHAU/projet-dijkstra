@@ -24,12 +24,48 @@ public:
   bool deleteSommet(C);
   bool deleteArrete(pair<C,C>);
   void deleteArrete(C);//suprime toute les arretes qui concerne C, un sommet.
-  friend ostream& operator<<(ostream& out ,const Graphe<C> &g );
+  // friend ostream& operator<<(ostream& ,const Graphe<C>&);
+  void affiche();
 
 };
 
+template <class C> class Tas {
+  private:
+    vector<C>* tas;
+
+  public:
+    Tas();
+    Tas(vector<C>* tas);
+
+    void addCles(C c);
+    C mini();
+    int findCles(C c);//retourne l'indice de l'element de type C rechercher
+    void permutation(int i, int j);
+    void tamiser(int noeud, int n);
+    void sort();
+    void afficherTab();//affiche le tas sous forme de tableau
+};
+
+// template <class C> class Tas {
+//   private:
+//     Tas* filsDroit;
+//     Tas* filsGauche;
+//     C cles;
+//   public:
+//     Tas();
+//     Tas(C);
+//     Tas(Tas*,Tas*,C);
+//
+//     void addCles(C c);
+//     C mini();
+//     int findCles(C c);
+//     void sort();
+// };
 //
 // #endif
+
+
+//fonction de Graphe
 template< class C>
 Graphe<C>::Graphe(){
    // (*this).sommets=NULL;
@@ -44,12 +80,16 @@ Graphe<C>::Graphe(vector<C> sommets, vector<pair<pair<C,C>,int> > arretes){
 
 template< class C>
 void Graphe<C>::addSommet(C c){
-  (*this).sommets.push_back(c);
+  if (findSommet(c)==-1){
+    (*this).sommets.push_back(c);
+  }
 }
 
 template< class C>
 void Graphe<C>::addArrete(pair<pair<C,C>,int> a){
-  (*this).arretes.push_back(a);
+  if (findArrete(a.first)==-1){
+    (*this).arretes.push_back(a);
+  }
 }
 
 template< class C>
@@ -109,54 +149,161 @@ void Graphe<C>::deleteArrete(C s){
   }
 }
 
-template< class C >
-ostream & operator << ( ostream& out ,const Graphe<C> &g ) {
-  out<<"Sommets:"<<endl;
-  for(int i =0;i<g.sommets.size();i++){
-    out<<g.sommets[i]<<";" ;
-  }
-  out<<endl;
-  out<<"Arretes:"<<endl;
-  for(int i =0;i<g.arretes.size();i++){
-    out<<"sommets: "<<g.arretes.first.first<<" "<<g.arretes.first.second<<"// poid:"<<g.arretes.second<<endl;
-  }
-  return out;
+template< class C>
+void Graphe<C>::affiche(){
+  cout<<"Sommets:"<<endl;
+    for(int i =0;i<(*this).sommets.size();i++){
+      cout<<(*this).sommets[i]<<";" ;
+    }
+    cout<<endl;
+    cout<<"Arretes:"<<endl;
+    for(int i =0;i<(*this).arretes.size();i++){
+      cout<<"sommets: "<<(*this).arretes[i].first.first<<" "<<(*this).arretes[i].first.second<<"// poid:"<<(*this).arretes[i].second<<endl;
+    }
 }
 
 
 // template< class C >
-// Solmmet &Sommet::operator = (const vector<C*>& v ) {
-// 	for (int i=0;i<v.size();i++){
-//     this[i]=v[i];
+// ostream & operator << ( ostream& out ,const Graphe<C> &g ) {
+//   out<<"Sommets:"<<endl;
+//   for(int i =0;i<g.sommets.size();i++){
+//     out<<g.sommets[i]<<";" ;
 //   }
-//   return *this ;
+//   out<<endl;
+//   out<<"Arretes:"<<endl;
+//   for(int i =0;i<g.arretes.size();i++){
+//     out<<"sommets: "<<g.arretes.first.first<<" "<<g.arretes.first.second<<"// poid:"<<g.arretes.second<<endl;
+//   }
+//   return out;
 // }
 
+// fonction de Tas
+template<class C>
+Tas<C>::Tas():tas(NULL){
+  // (*this).tas=NULL;
+}
+
+template<class C>
+Tas<C>::Tas(vector<C>* tas){
+  (*this).tas=tas;
+}
+
+template<class C>
+void Tas<C>::permutation(int i, int j){
+	int temp = 0;
+	temp = (*this).tas[i];
+	(*this).tas[i]=(*this).tas[j];
+	(*this).tas[j]=temp;
+}
+
+template<class C>
+void Tas<C>::tamiser(int noeud, int n){
+	int k = noeud;
+	int j = 2*k;
+	while(j<=n)
+	{
+		if (j<n && (*this).tas[j]>(*this).tas[j+1])
+		{
+			j++;
+		}
+		if ((*this).tas[k]>(*this).tas[j])
+		{
+			(*this).permutation(k,j);
+			k = j;
+			j = 2*k;
+		}
+		else return;
+
+	}
+
+}
+
+template<class C>
+void Tas<C>::sort(){
+  int n=(*this).tas.size();
+	if (n <= 1) return;
+	for (int i = n/2; i>=0;i--){
+		(*this).tamiser(i,n);
+	}
+	for (int i=(n-1); i>0;i-- ){
+		(*this).permutation(i,0);
+		(*this).tamiser(0,i-1);
+	}
+
+}
+
+template<class C>
+void Tas<C>::afficherTab(){
+  cout<<"Tableau du tas: "<<endl;
+    for(int i =0;i<(*this).tas->size();i++){
+      cout<<(*this).tas->at(i)<<";" ;
+    }
+    cout<<""<<endl;
+}
+// template<class C>
+// Tas<C>::Tas(){
+//   (*this).filsDroit=NULL;
+//   (*this).filsGauche=NULL;
+//   (*this).cles=0;
+// }
+//
+// template<class C>
+// Tas<C>::Tas(C c){
+//   (*this).filsDroit=NULL;
+//   (*this).filsGauche=NULL;
+//   (*this).cles=c;
+// }
+//
+// template<class C>
+// Tas<C>::Tas(Tas* filsDroit, Tas* filsGauche, C c){
+//   (*this).filsDroit=filsDroit;
+//   (*this).filsGauche=filsGauche;
+//   (*this).cles=c;
+// }
+//
+// template<class C>
+// void Tas<C>::sort(){
+//   (*this).cles=0;
+//
+// }
 
 int main(){
 
-  vector<int> v;
-  v.push_back(2);
-  v.push_back(3);
-  v.push_back(4);
-
-  vector<pair<pair<int,int>,int> > a;
-   a.push_back(make_pair(make_pair(2,3),4));
-   a.push_back(make_pair(make_pair(4,3),9));
-   a.push_back(make_pair(make_pair(2,4),5));
+  // vector<int> v;
+  // v.push_back(2);
+  // v.push_back(3);
+  // v.push_back(4);
+  //
+  // vector<pair<pair<int,int>,int> > a;
+  //  a.push_back(make_pair(make_pair(2,3),4));
+  //  a.push_back(make_pair(make_pair(4,3),9));
+  //  a.push_back(make_pair(make_pair(2,4),5));
 
     // Graphe<int> *g= new Graphe<int>(v,a);
 
-    Graphe<int> g (v,a);
-    g.addSommet(5);
-    g.addArrete(make_pair(make_pair(2,5),78));
-    g.deleteSommet(5);
-    Graphe<int>& refg = g;
-     cout<<g<<endl;
+    // Graphe<int> g (v,a);
+    // g.addSommet(5);
+    // g.addArrete(make_pair(make_pair(2,5),78));
+  //  g.deleteSommet(5);
+    // Graphe<int>& refg = g;
+    // refg.affiche();
+    // cout<<g<<endl;
 
 
   //  Graphe<int> *g2= new Graphe<int>();
+vector<char> v;// ici on ne peut pas fair vector<char> v {'t','i','r'}; car il faut c++11 (avec les char). 
+v.push_back('t');
+v.push_back('i');
+v.push_back('r');
 
+
+   //Tas<char> *t =new Tas<char>();
+  // Tas<int> *t2 =new Tas<int>();
+  // Tas<int> t3 (t,t2,5);
+
+  Tas<char> t (&v);
+
+  t.afficherTab();
 
   return 0;
 
