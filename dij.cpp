@@ -5,7 +5,7 @@
 # include <iostream>
 # include <vector>
 # include <string>
-// # include <bool>
+# include <algorithm>
 using namespace std;
 
 template <class C> class Graphe {
@@ -31,18 +31,18 @@ public:
 
 template <class C> class Tas {
   private:
-    vector<C>* tas;
+    vector<C> tas;
 
   public:
     Tas();
-    Tas(vector<C>* tas);
+    Tas(vector<C> tas);
 
     void addCles(C c);
     C mini();
     int findCles(C c);//retourne l'indice de l'element de type C rechercher
-    void permutation(int i, int j);
-    void tamiser(int noeud, int n);
-    void sort();
+    void permuter(C i, C j);
+    void heapify(int n, int i);
+    void heapSort();
     void afficherTab();//affiche le tas sous forme de tableau
 };
 
@@ -179,64 +179,124 @@ void Graphe<C>::affiche(){
 
 // fonction de Tas
 template<class C>
-Tas<C>::Tas():tas(NULL){
+Tas<C>::Tas(){
+  (*this).tas=std::vector<C>();
   // (*this).tas=NULL;
 }
 
 template<class C>
-Tas<C>::Tas(vector<C>* tas){
+Tas<C>::Tas(vector<C> tas){
   (*this).tas=tas;
 }
 
 template<class C>
-void Tas<C>::permutation(int i, int j){
-	int temp = 0;
+C Tas<C>::mini(){
+  return (*this).tas[0];
+}
+
+template<class C>
+void Tas<C>::addCles(C c){
+  (*this).tas.push_back(c);
+  //(*this).heapSort();
+}
+
+template<class C>
+void Tas<C>::permuter(C i, C j){
+  //cout<<"début permuter"<<endl;
+	C temp;
 	temp = (*this).tas[i];
 	(*this).tas[i]=(*this).tas[j];
 	(*this).tas[j]=temp;
+  //cout<<"fin permuter"<<endl;
 }
+
+// template<class C>
+// void Tas<C>::tamiser(int noeud, int n){
+//   //cout<<"début tamiset"<<endl;
+// 	int k = noeud;
+// 	int j = 2*k;
+// 	while(j<=n)
+// 	{
+// 		if (j<n && (*this).tas[j]>(*this).tas[j+1])
+// 		{
+// 			j++;
+// 		}
+// 		if ((*this).tas[k]>(*this).tas[j])
+// 		{
+// 			(*this).permuter(k,j);
+// 			k = j;
+// 			j = 2*k;
+// 		}
+// 		else return;
+//
+// 	}
+//   //cout<<"fin tamiser"<<endl;
+//
+// }
 
 template<class C>
-void Tas<C>::tamiser(int noeud, int n){
-	int k = noeud;
-	int j = 2*k;
-	while(j<=n)
-	{
-		if (j<n && (*this).tas[j]>(*this).tas[j+1])
-		{
-			j++;
-		}
-		if ((*this).tas[k]>(*this).tas[j])
-		{
-			(*this).permutation(k,j);
-			k = j;
-			j = 2*k;
-		}
-		else return;
+void Tas<C>::heapify(int n, int i)
+{
+    int smallest = i; // Initialize smalles as root
+    int l = 2 * i + 1; // left = 2*i + 1
+    int r = 2 * i + 2; // right = 2*i + 2
 
-	}
+    // If left child is smaller than root
+    if (l < n && (*this).tas[l] < (*this).tas[smallest])
+        smallest = l;
 
+    // If right child is smaller than smallest so far
+    if (r < n && (*this).tas[r] < (*this).tas[smallest])
+        smallest = r;
+
+    // If smallest is not root
+    if (smallest != i) {
+        (*this).permuter(i, smallest);
+
+        // Recursively heapify the affected sub-tree
+        (*this).heapify(n,smallest);
+    }
 }
 
+// main function to do heap sort
 template<class C>
-void Tas<C>::sort(){
-  int n=(*this).tas.size();
-	if (n <= 1) return;
-	for (int i = n/2; i>=0;i--){
-		(*this).tamiser(i,n);
-	}
-	for (int i=(n-1); i>0;i-- ){
-		(*this).permutation(i,0);
-		(*this).tamiser(0,i-1);
-	}
+void Tas<C>::heapSort()
+{
+    int n = (*this).tas.size();
+    // Build heap (rearrange array)
+    for (int i = n / 2 - 1; i >= 0; i--)
+        (*this).heapify(n,i);
 
+    // One by one extract an element from heap
+    for (int i = n - 1; i >= 0; i--) {
+        // Move current root to end
+        (*this).permuter(0, i);
+
+        // call max heapify on the reduced heap
+        heapify(i, 0);
+    }
 }
+//
+// template<class C>
+// void Tas<C>::sort(){
+// //  cout<<"début sort"<<endl;
+//   int n=(*this).tas.size();
+// 	if (n <= 1) return;
+// 	for (int i = n/2; i>=0;i--){
+// 		(*this).tamiser(i,n);
+// 	}
+// 	for (int i=(n-1); i>0;i-- ){
+// 	//	(*this).permuter(i,0);
+// 		(*this).tamiser(0,i-1);
+// 	}
+//   //cout<<"fin sort"<<endl;
+// }
 
 template<class C>
 void Tas<C>::afficherTab(){
   cout<<"Tableau du tas: "<<endl;
-    for(int i =0;i<(*this).tas->size();i++){
-      cout<<(*this).tas->at(i)<<";" ;
+    for(int i =0;i<(*this).tas.size();i++){
+      cout<<(*this).tas[i]<<";" ;
     }
     cout<<""<<endl;
 }
@@ -291,21 +351,43 @@ int main(){
 
 
   //  Graphe<int> *g2= new Graphe<int>();
-vector<char> v;// ici on ne peut pas fair vector<char> v {'t','i','r'}; car il faut c++11 (avec les char). 
-v.push_back('t');
-v.push_back('i');
-v.push_back('r');
+  //cout<<"1"<<endl;
+  vector<int> v;// ici on ne peut pas fair vector<char> v {'t','i','r'}; car il faut c++11 (avec les char).
+//  v.push_back(10);
+  //cout<<"3"<<endl;
+  //v.push_back(1);
+  //cout<<"4"<<endl;
+  // v.push_back(2);
+//  cout<<"5"<<endl;
 
 
    //Tas<char> *t =new Tas<char>();
   // Tas<int> *t2 =new Tas<int>();
   // Tas<int> t3 (t,t2,5);
 
-  Tas<char> t (&v);
+  Tas<int>* t =new Tas<int> ();
+  // cout<<"6"<<endl;
 
-  t.afficherTab();
+   t->addCles(1);
+   t->afficherTab();
+   t->addCles(2);
+
+
+   t->afficherTab();
+    t->addCles(5);
+// cout<<"1"<<endl;
+
+//  cout<<"1"<<endl;
+  t->afficherTab();
+  t->addCles(3);
+  t->afficherTab();
+  t->addCles(4);
+  t->afficherTab();
+  t->heapSort();
+  t->afficherTab();
+//  cout<<"8"<<endl;
 
   return 0;
 
-
+//si on veut l'indice d'un elt de pointeur de vecteur on utilise at()
 }
