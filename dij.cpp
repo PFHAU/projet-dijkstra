@@ -278,26 +278,13 @@ int main(){
     cout<<"q: quit."<<endl;
     cin>>user;
     if(user=='g'){
-      char user2='w';
-      while(user2!='i'||user2!='c'){
-		cout<<"i: int"<<endl;
-		cout<<"c: char"<<endl;
-		cin>>user2;
-      }
-      if(user2=='i'){
-        int type;
-        Graphe<int> g=Graphe<int> ();
-      }else{
-        char type;
-        Graphe<char> g=Graphe<char> ();
-      }
+      Graphe<int> g=Graphe<int> ();
       cout<<"taper les sommets:"<<endl;
       cout<<"pour arreter taper q si vous avez choisie char, -2 si vous avez choisie int "<<endl;
       
-      bool b=true;
+
 
       while(b){
-		  if(typeid(type).name()=="i"){
 			  int e;
 			  cin>>e;
 			  if(e==-2){
@@ -305,16 +292,6 @@ int main(){
 			  }else{
 				  g.addSommet(e);
 			  }
-		  }else{
-			  char e;
-			  cin>>e;
-			  if(e=="q"){
-				  b=false;
-			  }else{
-				  g.addSommet(e);
-			  }
-		  }
-		  
       }
 	  b=true;
 	  cout<<"taper les couples des sommets en choisissant entre les disponibles (taper -1 -1 pour quitter):"<<endl;
@@ -325,7 +302,7 @@ int main(){
 	  int aa=1;
 	  while(b){
 		  cout<<"arrete n°"<<aa<<" : "<<endl;
-		  if(typeid(type).name()=="i"){
+		  
 			  int s1, s2;
 			  cin>>s1>>s2;
 			  if(s1==-1&&s2==-1){
@@ -336,18 +313,7 @@ int main(){
 				  cin>>va;
 				  g.addArrete(((s1,s2),va));
 			  }
-		  }else{
-			  char s1, s2;
-			  cin>>s1>>s2;
-			  if(s1=="-1"&&s2=="-1"){
-				  b=false;
-			  }else{
-				  cout<<"saisir la valeur de l'arrete: "<<endl;
-				  int va;
-				  cin>>va;
-				  g.addArrete(((s1,s2),va));
-			  }
-		  }
+		  
 	  }
 	  g.affiche();
 	  vector<int> v;
