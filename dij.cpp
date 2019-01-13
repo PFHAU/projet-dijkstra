@@ -1,6 +1,3 @@
-// # ifndef __DIJ_HPP
-// # define __DIJ_HPP
-//
 
 # include <iostream>
 # include <vector>
@@ -46,8 +43,6 @@ template <class C> class Tas {
     void tamiser(int iPere, int iFin);
     void triTas();
     void entasser();
-    // void heapify(int n, int i);
-    // void heapSort();
     void afficherTab();//affiche le tas sous forme de tableau
 };
 
@@ -70,8 +65,6 @@ template< class C>
 Graphe<C>::Graphe(){
   (*this).sommets=std::vector<C>();
   (*this).arretes=std::vector<pair<pair<C,C>,int> > ();
-   // (*this).sommets=NULL;
-   // (*this).arretes=NULL;
 }
 
 template< class C>
@@ -172,7 +165,6 @@ void Graphe<C>::affiche(){
 template<class C>
 Tas<C>::Tas(){
   (*this).tas=std::vector<C>();
-  // (*this).tas=NULL;
 }
 
 template<class C>
@@ -188,17 +180,14 @@ C Tas<C>::mini(){
 template<class C>
 void Tas<C>::addCles(C c){
   (*this).tas.push_back(c);
-  //(*this).triTas();
 }
 
 template<class C>
 void Tas<C>::permuter(int i, int j){
-  //cout<<"début permuter"<<endl;
 	C temp;
 	temp = (*this).tas[i];
 	(*this).tas[i]=(*this).tas[j];
 	(*this).tas[j]=temp;
-  //cout<<"fin permuter"<<endl;
 }
 
 template <class C>
@@ -289,11 +278,11 @@ int main(){
     cout<<"q: quit."<<endl;
     cin>>user;
     if(user=='g'){
-      char user2=w;
+      char user2='w';
       while(user2!='i'||user2!='c'){
-      cout<<"i: int"<<endl;
-      cout<<"c: char"<<endl;
-      cin>>user2;
+		cout<<"i: int"<<endl;
+		cout<<"c: char"<<endl;
+		cin>>user2;
       }
       if(user2=='i'){
         int type;
@@ -302,44 +291,78 @@ int main(){
         char type;
         Graphe<char> g=Graphe<char> ();
       }
-      cout<<"taper les sommets:"<<endl
-      cout<<"arreter: "<<endl
-      while()
-      int ws=0;
-      int wa=0;
+      cout<<"taper les sommets:"<<endl;
+      cout<<"pour arreter taper q si vous avez choisie char, -2 si vous avez choisie int "<<endl;
+      
+      bool b=true;
 
-      while(ws==0){
+      while(b){
+		  if(typeid(type).name()=="i"){
+			  int e;
+			  cin>>e;
+			  if(e==-2){
+				  b=false;
+			  }else{
+				  g.addSommet(e);
+			  }
+		  }else{
+			  char e;
+			  cin>>e;
+			  if(e=="q"){
+				  b=false;
+			  }else{
+				  g.addSommet(e);
+			  }
+		  }
+		  
       }
-
+	  b=true;
+	  cout<<"taper les couples des sommets en choisissant entre les disponibles (taper -1 -1 pour quitter):"<<endl;
+	  for(int i=0; i<g.sommets.size(); i++){
+		  cout<<g.sommets[i]<<";".
+	  }
+	  cout<<endl;
+	  int aa=1;
+	  while(b){
+		  cout<<"arrete n°"<<aa<<" : "<<endl;
+		  if(typeid(type).name()=="i"){
+			  int s1, s2;
+			  cin>>s1>>s2;
+			  if(s1==-1&&s2==-1){
+				  b=false;
+			  }else{
+				  cout<<"saisir la valeur de l'arrete: "<<endl;
+				  int va;
+				  cin>>va;
+				  g.addArrete(((s1,s2),va));
+			  }
+		  }else{
+			  char s1, s2;
+			  cin>>s1>>s2;
+			  if(s1=="-1"&&s2=="-1"){
+				  b=false;
+			  }else{
+				  cout<<"saisir la valeur de l'arrete: "<<endl;
+				  int va;
+				  cin>>va;
+				  g.addArrete(((s1,s2),va));
+			  }
+		  }
+	  }
+	  g.affiche();
+	  vector<int> v;
+	  for(j=0; j<g.arretes.size();j++){
+		  v.push_back(g.arretes[j]);
+	  }
+	  Tas<int> t (v);
+	  cout<<"Tas non ordonnee: "<<endl;
+	  t.afficherTab();
+	  t.triTas();
+	  cout<<"Tas ordonnee: "<<endl;
+	  t.afficherTab();
+	  Tas_id<int> tid ();
+	  tid.setAllId(t);
     }
   }
-
-  vector<int> v;
-
-
-  Tas<int>* t =new Tas<int> ();
-  // cout<<"6"<<endl;
-
-   t->addCles(1);
-   t->afficherTab();
-   t->addCles(2);
-
-
-   t->afficherTab();
-    t->addCles(5);
-// cout<<"1"<<endl;
-
-//  cout<<"1"<<endl;
-  t->afficherTab();
-  t->addCles(3);
-  t->afficherTab();
-  t->addCles(4);
-  t->afficherTab();
-  t->triTas();
-  t->afficherTab();
-//  cout<<"8"<<endl;
-
   return 0;
-
-//si on veut l'indice d'un elt de pointeur de vecteur on utilise at()
 }
