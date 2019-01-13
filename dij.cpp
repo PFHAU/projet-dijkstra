@@ -6,6 +6,7 @@
 # include <vector>
 # include <string>
 # include <algorithm>
+#include <map>
 using namespace std;
 
 template <class C> class Graphe {
@@ -17,15 +18,15 @@ public:
   Graphe();
   Graphe(vector<C> sommets, vector<pair<pair<C,C>,int> > arretes);
 
-  void addSommet(C);
-  void addArrete(pair<pair<C,C>,int>);
+
+  void addSommet(C);//ajoute un sommet de type C passer en parametre dans la liste des arrets du Graphe appelant
+  void addArrete(pair<pair<C,C>,int>);//ajoute une arrets (ainsi que sont poid) dans la liste des arretes du Graphe appelant
   int findSommet(C);//retourne l'indice du sommet rechercher dans le vecteur, retourne -1 si il le retrouve pas
   int findArrete(pair<C,C>);//retourne l'indice de l'arrete rechercher dans le vecteur, retourne -1 si il le retrouve pas
-  bool deleteSommet(C);
-  bool deleteArrete(pair<C,C>);
+  bool deleteSommet(C);//supprime un sommet de type C passer en parametre de la liste des sommets (uniquement si le sommet existe: retourne false) retourne true
+  bool deleteArrete(pair<C,C>);//supprime une arrete passer en parametre de la liste d'arrete (uniquement si l'arrete existe: retourne false) retourne true
   void deleteArrete(C);//suprime toute les arretes qui concerne C, un sommet.
-  // friend ostream& operator<<(ostream& ,const Graphe<C>&);
-  void affiche();
+  void affiche();// affiche les sommets du graphe ainsi que ses arretes.
 
 };
 
@@ -36,38 +37,39 @@ template <class C> class Tas {
   public:
     Tas();
     Tas(vector<C> tas);
+    ~Tas();
 
     void addCles(C c);
     C mini();
     int findCles(C c);//retourne l'indice de l'element de type C rechercher
-    void permuter(C i, C j);
-    void heapify(int n, int i);
-    void heapSort();
+    void permuter(int i,int j);
+    void tamiser(int iPere, int iFin);
+    void triTas();
+    void entasser();
+    // void heapify(int n, int i);
+    // void heapSort();
     void afficherTab();//affiche le tas sous forme de tableau
 };
 
-// template <class C> class Tas {
-//   private:
-//     Tas* filsDroit;
-//     Tas* filsGauche;
-//     C cles;
-//   public:
-//     Tas();
-//     Tas(C);
-//     Tas(Tas*,Tas*,C);
-//
-//     void addCles(C c);
-//     C mini();
-//     int findCles(C c);
-//     void sort();
-// };
-//
-// #endif
+template <class C> class Tas_id{
+  private:
+    std::map<int,C> tas_id;
 
+  public:
+    Tas_id();
+    Tas_id(std::map<int,C>);
+    ~Tas_id();
+
+    void setAllId(Tas<C> t);//prend un tas et affecte des id, on le stoque dans la teas_id appelant.
+    void addVal(Tas<C> t,C c);//rajoute dans le tas l'element c, et l'ajoute dans tas_id avec la cles qui correspond a sa position
+    void removeVal(Tas<C> t,C c);//supprime dans le tas t l'élement c, et le supprime de tas id.
+};
 
 //fonction de Graphe
 template< class C>
 Graphe<C>::Graphe(){
+  (*this).sommets=std::vector<C>();
+  (*this).arretes=std::vector<pair<pair<C,C>,int> > ();
    // (*this).sommets=NULL;
    // (*this).arretes=NULL;
 }
@@ -82,6 +84,8 @@ template< class C>
 void Graphe<C>::addSommet(C c){
   if (findSommet(c)==-1){
     (*this).sommets.push_back(c);
+  }else{
+    cout<<"Sommet deja présent"<<endl;
   }
 }
 
@@ -89,6 +93,8 @@ template< class C>
 void Graphe<C>::addArrete(pair<pair<C,C>,int> a){
   if (findArrete(a.first)==-1){
     (*this).arretes.push_back(a);
+  }else{
+    cout<<"Arrete deja présente"<<endl;
   }
 }
 
@@ -162,21 +168,6 @@ void Graphe<C>::affiche(){
     }
 }
 
-
-// template< class C >
-// ostream & operator << ( ostream& out ,const Graphe<C> &g ) {
-//   out<<"Sommets:"<<endl;
-//   for(int i =0;i<g.sommets.size();i++){
-//     out<<g.sommets[i]<<";" ;
-//   }
-//   out<<endl;
-//   out<<"Arretes:"<<endl;
-//   for(int i =0;i<g.arretes.size();i++){
-//     out<<"sommets: "<<g.arretes.first.first<<" "<<g.arretes.first.second<<"// poid:"<<g.arretes.second<<endl;
-//   }
-//   return out;
-// }
-
 // fonction de Tas
 template<class C>
 Tas<C>::Tas(){
@@ -197,11 +188,11 @@ C Tas<C>::mini(){
 template<class C>
 void Tas<C>::addCles(C c){
   (*this).tas.push_back(c);
-  //(*this).heapSort();
+  //(*this).triTas();
 }
 
 template<class C>
-void Tas<C>::permuter(C i, C j){
+void Tas<C>::permuter(int i, int j){
   //cout<<"début permuter"<<endl;
 	C temp;
 	temp = (*this).tas[i];
@@ -210,87 +201,38 @@ void Tas<C>::permuter(C i, C j){
   //cout<<"fin permuter"<<endl;
 }
 
-// template<class C>
-// void Tas<C>::tamiser(int noeud, int n){
-//   //cout<<"début tamiset"<<endl;
-// 	int k = noeud;
-// 	int j = 2*k;
-// 	while(j<=n)
-// 	{
-// 		if (j<n && (*this).tas[j]>(*this).tas[j+1])
-// 		{
-// 			j++;
-// 		}
-// 		if ((*this).tas[k]>(*this).tas[j])
-// 		{
-// 			(*this).permuter(k,j);
-// 			k = j;
-// 			j = 2*k;
-// 		}
-// 		else return;
-//
-// 	}
-//   //cout<<"fin tamiser"<<endl;
-//
-// }
-
-template<class C>
-void Tas<C>::heapify(int n, int i)
-{
-    int smallest = i; // Initialize smalles as root
-    int l = 2 * i + 1; // left = 2*i + 1
-    int r = 2 * i + 2; // right = 2*i + 2
-
-    // If left child is smaller than root
-    if (l < n && (*this).tas[l] < (*this).tas[smallest])
-        smallest = l;
-
-    // If right child is smaller than smallest so far
-    if (r < n && (*this).tas[r] < (*this).tas[smallest])
-        smallest = r;
-
-    // If smallest is not root
-    if (smallest != i) {
-        (*this).permuter(i, smallest);
-
-        // Recursively heapify the affected sub-tree
-        (*this).heapify(n,smallest);
-    }
+template <class C>
+void Tas<C>::tamiser(int iPere, int iFin){
+  int iFils = 2*iPere;
+  if((iFils<iFin) && ((*this).tas[iFils+1]>(*this).tas[iFils])){
+    iFils++;
+  }
+  if ((iFils<=iFin) && ((*this).tas[iPere]<(*this).tas[iFils])){
+    (*this).permuter(iPere, iFils);
+    (*this).tamiser(iFils, iFin);
+  }
 }
 
-// main function to do heap sort
-template<class C>
-void Tas<C>::heapSort()
-{
-    int n = (*this).tas.size();
-    // Build heap (rearrange array)
-    for (int i = n / 2 - 1; i >= 0; i--)
-        (*this).heapify(n,i);
-
-    // One by one extract an element from heap
-    for (int i = n - 1; i >= 0; i--) {
-        // Move current root to end
-        (*this).permuter(0, i);
-
-        // call max heapify on the reduced heap
-        heapify(i, 0);
-    }
+template <class C>
+void Tas<C>::triTas(){
+  (*this).entasser();
+  int k= (*this).tas.size();
+  while(k>0){
+    (*this).permuter(1,k);
+    (*this).tamiser(1,k-1);
+    k--;
+  }
 }
-//
-// template<class C>
-// void Tas<C>::sort(){
-// //  cout<<"début sort"<<endl;
-//   int n=(*this).tas.size();
-// 	if (n <= 1) return;
-// 	for (int i = n/2; i>=0;i--){
-// 		(*this).tamiser(i,n);
-// 	}
-// 	for (int i=(n-1); i>0;i-- ){
-// 	//	(*this).permuter(i,0);
-// 		(*this).tamiser(0,i-1);
-// 	}
-//   //cout<<"fin sort"<<endl;
-// }
+
+template <class C>
+void Tas<C>::entasser(){
+  int i=(*this).tas.size()/2;
+  while(i>0){
+    tamiser(i,(*this).tas.size());
+    i--;
+  }
+}
+
 
 template<class C>
 void Tas<C>::afficherTab(){
@@ -300,70 +242,80 @@ void Tas<C>::afficherTab(){
     }
     cout<<""<<endl;
 }
-// template<class C>
-// Tas<C>::Tas(){
-//   (*this).filsDroit=NULL;
-//   (*this).filsGauche=NULL;
-//   (*this).cles=0;
-// }
-//
-// template<class C>
-// Tas<C>::Tas(C c){
-//   (*this).filsDroit=NULL;
-//   (*this).filsGauche=NULL;
-//   (*this).cles=c;
-// }
-//
-// template<class C>
-// Tas<C>::Tas(Tas* filsDroit, Tas* filsGauche, C c){
-//   (*this).filsDroit=filsDroit;
-//   (*this).filsGauche=filsGauche;
-//   (*this).cles=c;
-// }
-//
-// template<class C>
-// void Tas<C>::sort(){
-//   (*this).cles=0;
-//
-// }
+
+//fonction de tas_id
+
+template<class C>
+Tas_id<C>::Tas_id(){
+  (*this).tas_id=std::map<int,C>();
+}
+
+template<class C>
+Tas_id<C>::Tas_id(std::map<int,C> tas_id){
+  (*this).tas_id=tas_id;
+}
+
+template<class C>
+void Tas_id<C>::setAllId(Tas<C> t){
+  int i=1;
+  int taille=t.tas.size();
+  while (taille>0){
+    (*this).tas_id[i]=t.tas[i-1];
+    i++;
+    taille--;
+  }
+}
+
+template<class C>
+void Tas_id<C>::addVal(Tas<C> t,C c){
+  t.addCles(c);
+  (*this).setAllid(t);
+}
+
+template<class C>
+void Tas_id<C>::removeVal(Tas<C> t,C c){
+  t.addCles(c);
+  (*this).setAllid(t);
+}
+
+
+
 
 int main(){
 
-  // vector<int> v;
-  // v.push_back(2);
-  // v.push_back(3);
-  // v.push_back(4);
-  //
-  // vector<pair<pair<int,int>,int> > a;
-  //  a.push_back(make_pair(make_pair(2,3),4));
-  //  a.push_back(make_pair(make_pair(4,3),9));
-  //  a.push_back(make_pair(make_pair(2,4),5));
+  char user='w';
+  while(user!='q'){
+    cout<<"g: crée un Graphe."<<endl;
+    cout<<"q: quit."<<endl;
+    cin>>user;
+    if(user=='g'){
+      char user2=w;
+      while(user2!='i'||user2!='c'){
+      cout<<"i: int"<<endl;
+      cout<<"c: char"<<endl;
+      cin>>user2;
+      }
+      if(user2=='i'){
+        int type;
+        Graphe<int> g=Graphe<int> ();
+      }else{
+        char type;
+        Graphe<char> g=Graphe<char> ();
+      }
+      cout<<"taper les sommets:"<<endl
+      cout<<"arreter: "<<endl
+      while()
+      int ws=0;
+      int wa=0;
 
-    // Graphe<int> *g= new Graphe<int>(v,a);
+      while(ws==0){
+      }
 
-    // Graphe<int> g (v,a);
-    // g.addSommet(5);
-    // g.addArrete(make_pair(make_pair(2,5),78));
-  //  g.deleteSommet(5);
-    // Graphe<int>& refg = g;
-    // refg.affiche();
-    // cout<<g<<endl;
+    }
+  }
 
+  vector<int> v;
 
-  //  Graphe<int> *g2= new Graphe<int>();
-  //cout<<"1"<<endl;
-  vector<int> v;// ici on ne peut pas fair vector<char> v {'t','i','r'}; car il faut c++11 (avec les char).
-//  v.push_back(10);
-  //cout<<"3"<<endl;
-  //v.push_back(1);
-  //cout<<"4"<<endl;
-  // v.push_back(2);
-//  cout<<"5"<<endl;
-
-
-   //Tas<char> *t =new Tas<char>();
-  // Tas<int> *t2 =new Tas<int>();
-  // Tas<int> t3 (t,t2,5);
 
   Tas<int>* t =new Tas<int> ();
   // cout<<"6"<<endl;
@@ -383,7 +335,7 @@ int main(){
   t->afficherTab();
   t->addCles(4);
   t->afficherTab();
-  t->heapSort();
+  t->triTas();
   t->afficherTab();
 //  cout<<"8"<<endl;
 
